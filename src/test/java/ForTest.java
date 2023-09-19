@@ -1,34 +1,80 @@
 import init.InitialDriver;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class ForTest extends InitialDriver {
-    @Test
-    public void findFirstTopSale() throws InterruptedException {
-        driver.get("https://rozetka.com.ua/ua/");
-        WebElement laptopsAndComputers = driver.findElement(By.xpath("//ul[@class='menu-categories menu-categories_type_main']/li[1]"));
-        laptopsAndComputers.click();
-        WebElement laptops = driver.findElement(By.xpath("//a[@title='Ноутбуки']"));
-        laptops.click();
-        WebElement sellerRozetka = driver.findElement(By.xpath("//a[@data-id='Rozetka']"));
-        sellerRozetka.click();
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10), Duration.ofSeconds(5));
-        WebElement maxPrice = driver.findElement(By.xpath("//input[@formcontrolname='max']"));
-        maxPrice.clear();
-        maxPrice.sendKeys("100000");
-        WebElement submitPrice = driver.findElement(By.xpath("//rz-scrollbar//button[@type='submit']"));
-        submitPrice.click();
-        WebElement topSales = driver.findElement(By.xpath("//span[contains(text(),'ТОП ПРОДАЖ')]/ancestor::div[@class='goods-tile__inner']"));
-        topSales.click();
-        WebElement topSaleasOnProductCard = driver.findElement(By.xpath("(//*[@class='simple-slider__holder carousel']//span[contains(text(),'ТОП ПРОДАЖ')])[2]"));
-        // xpath довгий, але він обмежує вібір лише в слайдері, не чіпаючи інші блоки
-        Assert.assertTrue(topSaleasOnProductCard.isDisplayed(), "ТОП ПРОДАЖ is not displayed");
+    WebDriver driver;
+    String mainPageUrl = "https://rozetka.com.ua/ua/";
 
+    @BeforeTest
+    public void setupDriver() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(3000));
+        driver.manage().window().maximize();
     }
 
-}
+    @Test
+    public void checkPromotionCarousel() {
+
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        driver.get(mainPageUrl);
+
+        WebElement carouselTitle = driver.findElement(By.xpath("//h2[starts-with(text(),' Акц')]"));
+        String carouselTitleText = carouselTitle.getAttribute("textContent");
+
+        List<WebElement> carouselItems = driver
+                .findElements(By.xpath(String.format("//h2[text()='%s']/..//li", carouselTitleText)));
+        int actualSizeCarousel = carouselItems.size();
+        Assert.assertEquals(actualSizeCarousel, 6, "There are not 6 items are displayed in the carousel");
+
+        WebElement firstProductInCarousel = carouselItems.get(0);
+
+        WebElement firstProductPrice = firstProductInCarousel
+                .findElement(By.xpath(".//div[contains(@class,'tile__price ')]"));
+        String firstProductPriceValue = firstProductPrice.getAttribute("innerText");
+
+        firstProductInCarousel.click();
+        WebElement priceInBigProductCard = driver.findElement(By.xpath("//p[contains(@class,'product-price__big')]"));
+        String priceInBigProductCardValue = priceInBigProductCard.getAttribute("innerText");
+        Assert.assertEquals(firstProductPriceValue, priceInBigProductCardValue, "Price doesn`t equals");
+
+        WebElement logo = driver.findElement(By.xpath("//a[@class='header__logo']"));
+        logo.click();
+        String urlAfterReferenceByLogo = driver.getCurrentUrl();
+        Assert.assertEquals(urlAfterReferenceByLogo, mainPageUrl, "Urls don`t equals");
+
+        while (true) {
+            try {
+                driver.findElement(By.xpath(String.format("//h2[text()='%s']", carouselTitleText)));
+                break;
+            } catch (NoSuchElementException elementException) {
+                js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+            }
+        }
+
+        carouselItems = driver
+                .findElements(By.xpath(String.format("//h2[text()='%s']/..//li", carouselTitleText)));
+        actualSizeCarousel = carouselItems.size();
+        Assert.assertEquals(actualSizeCarousel, 6, "There are not 6 items are displayed in the carousel");
+    }
+
+    @AfterTest
+    public void quitDriver() {
+        driver.quit();
+    }
+
+    }
