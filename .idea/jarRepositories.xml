@@ -7,6 +7,11 @@
       <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="host-maven-repo-example" />
+      <option name="name" value="host-maven-repo-example" />
+      <option name="url" value="https://github.com/Alexei-hub/host-maven-repo-example/tree/test" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Maven Central repository" />
       <option name="url" value="https://repo1.maven.org/maven2" />
