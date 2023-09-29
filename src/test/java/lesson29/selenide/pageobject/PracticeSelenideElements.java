@@ -11,7 +11,7 @@ public class PracticeSelenideElements {
 
     @BeforeTest
     public void before() {
-        open("https://rozetka.com.ua/");
+        open("https://www.rozetka.com.ua/");
     }
 
     @Test
