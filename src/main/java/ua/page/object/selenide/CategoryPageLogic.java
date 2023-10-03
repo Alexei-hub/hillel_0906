@@ -11,7 +11,7 @@ public class CategoryPageLogic extends CategoryPageLocators {
     public SearchPageLogic clickOnSubCategory(String categoryName) {
         SelenideElement element = null;
         for (SelenideElement e : subCategories) {
-            if (e.text().equals(categoryName)) {
+            if (e.text().trim().equals(categoryName)) {
                 element = e;
                 break;
             }
