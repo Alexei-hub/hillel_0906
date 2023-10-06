@@ -13,7 +13,6 @@ import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 
 public class VisualRegressionTest {
-
     @Test
     public void screenShot() throws IOException {
         open("https://www.google.com.ua/");
