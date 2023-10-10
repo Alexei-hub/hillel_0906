@@ -1,6 +1,7 @@
 package ua.page.object.selenide;
 
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import java.util.Objects;
 
@@ -20,6 +21,7 @@ public class CategoryPageLogic extends CategoryPageLocators {
         return page(SearchPageLogic.class);
     }
 
+    @Step("Click on subcategory {categoryName}")
     public SearchPageLogic clickOnSubCategory2(String categoryName) {
         subCategoriesMethod(categoryName).click();
         return page(SearchPageLogic.class);

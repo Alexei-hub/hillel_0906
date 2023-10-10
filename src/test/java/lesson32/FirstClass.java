@@ -9,6 +9,7 @@ public class FirstClass {
     final String LANG_FROM_JENKINS = System.getenv("LANG_FROM_JENKINS");
 
     @Test()
+    @Flaky()
     @Owner("Alex")
     @Lead("Oleg")
     @Description("Test check something")
